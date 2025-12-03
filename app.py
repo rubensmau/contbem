@@ -12,6 +12,7 @@ app.secret_key = os.urandom(24)
 # Initialize Supabase Client
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
+admin_email: str = os.environ.get("ADMIN_EMAIL", "rubensmau@gmail.com")
 
 supabase: Client = create_client(url, key)
 
@@ -19,7 +20,7 @@ supabase: Client = create_client(url, key)
 def home():
     if 'user' in session:
         response = supabase.table("users").select("*").execute()
-        is_admin = session.get('user') == 'rubensmau@gmail.com'
+        is_admin = session.get('user') == admin_email
         return render_template("index.html", users=response.data, is_admin=is_admin)
     return redirect(url_for('login'))
 
@@ -48,7 +49,7 @@ def welcome():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if 'user' not in session or session['user'] != 'rubensmau@gmail.com':
+    if 'user' not in session or session['user'] != admin_email:
         flash("Você não está autorizado a acessar esta página.")
         return redirect(url_for('home'))
 
