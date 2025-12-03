@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if person else 'Nova' }} Pessoa - Contbem CRM{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar' if person else 'Nova' }} Pessoa</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="mt-4">
+    <div class="mb-3">
+        <label for="name" class="form-label">Nome *</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ person.name if person else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ person.email if person else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="phone" class="form-label">Telefone</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ person.phone if person else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="position" class="form-label">Cargo</label>
+        <input type="text" class="form-control" id="position" name="position" value="{{ person.position if person else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="entity_id" class="form-label">Entidade *</label>
+        <select class="form-select" id="entity_id" name="entity_id" required>
+            <option value="">Selecione uma entidade...</option>
+            {% for entity in entities %}
+            <option value="{{ entity.id }}" {% if person and person.entity_id == entity.id %}selected{% endif %}>
+                {{ entity.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ 'Atualizar' if person else 'Criar' }}</button>
+    <a href="/persons" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

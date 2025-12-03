@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Pessoas - Contbem CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Pessoas</h2>
+    <div>
+        <a href="/entities" class="btn btn-outline-primary">Entidades</a>
+        <a href="/events" class="btn btn-outline-primary">Eventos</a>
+        <a href="/actions" class="btn btn-outline-primary">Ações</a>
+        <a href="/persons/new" class="btn btn-success">Nova Pessoa</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Filter Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/persons" class="row g-3">
+            <div class="col-md-5">
+                <label for="entity_id" class="form-label">Filtrar por Entidade</label>
+                <select class="form-select" id="entity_id" name="entity_id" onchange="this.form.submit()">
+                    <option value="">Todas as Entidades</option>
+                    {% for entity in entities %}
+                    <option value="{{ entity.id }}" {% if selected_entity == entity.id|string %}selected{% endif %}>
+                        {{ entity.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="search" class="form-label">Buscar por Nome</label>
+                <input type="text" class="form-control" id="search" name="search"
+                       value="{{ search_query }}" placeholder="Digite o nome...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+        </form>
+        {% if selected_entity or search_query %}
+        <div class="mt-2">
+            <a href="/persons" class="btn btn-sm btn-outline-secondary">Limpar Filtros</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Cargo</th>
+                <th>Entidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in persons %}
+            <tr>
+                <td>{{ person.name }}</td>
+                <td>{{ person.email or '-' }}</td>
+                <td>{{ person.phone or '-' }}</td>
+                <td>{{ person.position or '-' }}</td>
+                <td>{{ person.entities.name if person.entities else '-' }}</td>
+                <td class="actions-cell">
+                    <a href="/persons/{{ person.id }}/edit" title="Editar">
+                        <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
+                    </a>
+                    <form method="POST" action="/persons/{{ person.id }}/delete">
+                        <button type="submit" title="Deletar" onclick="return confirm('Tem certeza que deseja deletar esta pessoa?')">
+                            <img src="{{ url_for('static', filename='svg/delete.svg') }}" alt="Deletar" class="icon-btn">
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a href="/welcome" class="btn btn-secondary">Voltar para Início</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

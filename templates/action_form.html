@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if action else 'Nova' }} Ação - Contbem CRM{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar' if action else 'Nova' }} Ação</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="mt-4">
+    <div class="mb-3">
+        <label for="title" class="form-label">Título *</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ action.title if action else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="entity_id" class="form-label">Entidade *</label>
+        <select class="form-select" id="entity_id" name="entity_id" required>
+            <option value="">Selecione uma entidade...</option>
+            {% for entity in entities %}
+            <option value="{{ entity.id }}" {% if action and action.entity_id == entity.id %}selected{% endif %}>
+                {{ entity.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="pending" {% if action and action.status == 'pending' %}selected{% endif %}>Pendente</option>
+                <option value="in_progress" {% if action and action.status == 'in_progress' %}selected{% endif %}>Em Andamento</option>
+                <option value="completed" {% if action and action.status == 'completed' %}selected{% endif %}>Concluída</option>
+                <option value="cancelled" {% if action and action.status == 'cancelled' %}selected{% endif %}>Cancelada</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label for="priority" class="form-label">Prioridade</label>
+            <select class="form-select" id="priority" name="priority">
+                <option value="low" {% if action and action.priority == 'low' %}selected{% endif %}>Baixa</option>
+                <option value="medium" {% if action and action.priority == 'medium' %}selected{% elif not action %}selected{% endif %}>Média</option>
+                <option value="high" {% if action and action.priority == 'high' %}selected{% endif %}>Alta</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label for="due_date" class="form-label">Data de Vencimento</label>
+            <input type="date" class="form-control" id="due_date" name="due_date" value="{{ action.due_date if action and action.due_date else '' }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Descrição</label>
+        <textarea class="form-control" id="description" name="description" rows="4">{{ action.description if action else '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ 'Atualizar' if action else 'Criar' }}</button>
+    <a href="/actions" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

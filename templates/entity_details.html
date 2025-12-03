@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}{{ entity.name }} - Detalhes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Detalhes da Entidade</h2>
+    <div>
+        <a href="/entities" class="btn btn-secondary">Voltar para Entidades</a>
+        <a href="/entities/{{ entity.id }}/edit" class="btn btn-primary">Editar Entidade</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Entity Information Card -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ entity.name }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Email:</strong> {{ entity.email or '-' }}</p>
+                <p><strong>Telefone:</strong> {{ entity.phone or '-' }}</p>
+                <p><strong>Endereço:</strong> {{ entity.address or '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>URL:</strong>
+                    {% if entity.url %}
+                        <a href="{{ entity.url }}" target="_blank">{{ entity.url }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
+                <p><strong>Criado em:</strong> {{ entity.created_at[:10] if entity.created_at else '-' }}</p>
+            </div>
+        </div>
+        {% if entity.description %}
+        <div class="row mt-2">
+            <div class="col-12">
+                <p><strong>Descrição:</strong></p>
+                <p>{{ entity.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Events Section -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Eventos</h5>
+        <a href="/events/new?entity_id={{ entity.id }}" class="btn btn-sm btn-light">Adicionar Evento</a>
+    </div>
+    <div class="card-body">
+        {% if events %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Título</th>
+                        <th>Tipo</th>
+                        <th>Pessoa</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.event_date[:10] if event.event_date else '-' }}</td>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.event_type or '-' }}</td>
+                        <td>{{ event.persons.name if event.persons else '-' }}</td>
+                        <td>{{ event.description[:40] + '...' if event.description and event.description|length > 40 else (event.description or '-') }}</td>
+                        <td class="actions-cell">
+                            <a href="/events/{{ event.id }}/edit" title="Editar">
+                                <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Nenhum evento registrado para esta entidade.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Actions Section -->
+<div class="card mb-4">
+    <div class="card-header bg-warning d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Ações</h5>
+        <a href="/actions/new?entity_id={{ entity.id }}" class="btn btn-sm btn-dark">Adicionar Ação</a>
+    </div>
+    <div class="card-body">
+        {% if actions %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Status</th>
+                        <th>Prioridade</th>
+                        <th>Data de Vencimento</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for action in actions %}
+                    <tr>
+                        <td>{{ action.title }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if action.status == 'completed' else ('warning' if action.status == 'in_progress' else 'secondary') }}">
+                                {{ action.status or 'pending' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if action.priority == 'high' else ('warning' if action.priority == 'medium' else 'info') }}">
+                                {{ action.priority or 'medium' }}
+                            </span>
+                        </td>
+                        <td>{{ action.due_date if action.due_date else '-' }}</td>
+                        <td>{{ action.description[:40] + '...' if action.description and action.description|length > 40 else (action.description or '-') }}</td>
+                        <td class="actions-cell">
+                            <a href="/actions/{{ action.id }}/edit" title="Editar">
+                                <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Nenhuma ação registrada para esta entidade.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="/entities" class="btn btn-secondary">Voltar para Entidades</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

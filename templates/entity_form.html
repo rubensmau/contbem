@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if entity else 'Nova' }} Entidade - Contbem CRM{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar' if entity else 'Nova' }} Entidade</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="mt-4">
+    <div class="mb-3">
+        <label for="name" class="form-label">Nome *</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ entity.name if entity else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ entity.email if entity else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="phone" class="form-label">Telefone</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ entity.phone if entity else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="url" class="form-label">URL</label>
+        <input type="url" class="form-control" id="url" name="url" value="{{ entity.url if entity else '' }}" placeholder="https://exemplo.com">
+    </div>
+
+    <div class="mb-3">
+        <label for="address" class="form-label">Endereço</label>
+        <textarea class="form-control" id="address" name="address" rows="2">{{ entity.address if entity else '' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Descrição</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ entity.description if entity else '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ 'Atualizar' if entity else 'Criar' }}</button>
+    <a href="/entities" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

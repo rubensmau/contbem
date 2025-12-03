@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if event else 'Novo' }} Evento - Contbem CRM{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar' if event else 'Novo' }} Evento</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="mt-4">
+    <div class="mb-3">
+        <label for="title" class="form-label">Título *</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ event.title if event else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="event_date" class="form-label">Data do Evento *</label>
+        <input type="datetime-local" class="form-control" id="event_date" name="event_date"
+               value="{{ event.event_date[:16] if event and event.event_date else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="event_type" class="form-label">Tipo de Evento</label>
+        <select class="form-select" id="event_type" name="event_type">
+            <option value="">Selecione o tipo...</option>
+            <option value="Reunião" {% if event and event.event_type == 'Reunião' %}selected{% endif %}>Reunião</option>
+            <option value="Ligação" {% if event and event.event_type == 'Ligação' %}selected{% endif %}>Ligação</option>
+            <option value="Email" {% if event and event.event_type == 'Email' %}selected{% endif %}>Email</option>
+            <option value="Follow-up" {% if event and event.event_type == 'Follow-up' %}selected{% endif %}>Follow-up</option>
+            <option value="Outro" {% if event and event.event_type == 'Outro' %}selected{% endif %}>Outro</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="entity_id" class="form-label">Entidade *</label>
+        <select class="form-select" id="entity_id" name="entity_id" required>
+            <option value="">Selecione uma entidade...</option>
+            {% for entity in entities %}
+            <option value="{{ entity.id }}" {% if event and event.entity_id == entity.id %}selected{% endif %}>
+                {{ entity.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="person_id" class="form-label">Pessoa</label>
+        <select class="form-select" id="person_id" name="person_id">
+            <option value="">Selecione uma pessoa (opcional)...</option>
+            {% for person in persons %}
+            <option value="{{ person.id }}" data-entity-id="{{ person.entity_id }}" {% if event and event.person_id == person.id %}selected{% endif %}>
+                {{ person.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Descrição</label>
+        <textarea class="form-control" id="description" name="description" rows="4">{{ event.description if event else '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ 'Atualizar' if event else 'Criar' }}</button>
+    <a href="/events" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Filter persons based on selected entity
+    document.getElementById('entity_id').addEventListener('change', function() {
+        const selectedEntityId = this.value;
+        const personSelect = document.getElementById('person_id');
+        const personOptions = personSelect.querySelectorAll('option');
+
+        personOptions.forEach(option => {
+            if (option.value === '') {
+                // Keep the placeholder option visible
+                option.style.display = '';
+                option.disabled = false;
+            } else {
+                const personEntityId = option.getAttribute('data-entity-id');
+                if (selectedEntityId === '' || personEntityId === selectedEntityId) {
+                    option.style.display = '';
+                    option.disabled = false;
+                } else {
+                    option.style.display = 'none';
+                    option.disabled = true;
+                }
+            }
+        });
+
+        // Reset person selection if the currently selected person doesn't belong to the new entity
+        const currentPersonOption = personSelect.options[personSelect.selectedIndex];
+        if (currentPersonOption.value !== '' && currentPersonOption.getAttribute('data-entity-id') !== selectedEntityId) {
+            personSelect.value = '';
+        }
+    });
+
+    // Trigger the filter on page load if an entity is already selected
+    document.addEventListener('DOMContentLoaded', function() {
+        const entitySelect = document.getElementById('entity_id');
+        if (entitySelect.value) {
+            entitySelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Ações - Contbem CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Ações</h2>
+    <div>
+        <a href="/entities" class="btn btn-outline-primary">Entidades</a>
+        <a href="/persons" class="btn btn-outline-primary">Pessoas</a>
+        <a href="/events" class="btn btn-outline-primary">Eventos</a>
+        <a href="/actions/new" class="btn btn-success">Nova Ação</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Entidade</th>
+                <th>Status</th>
+                <th>Prioridade</th>
+                <th>Data de Vencimento</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for action in actions %}
+            <tr>
+                <td>{{ action.title }}</td>
+                <td>{{ action.entities.name if action.entities else '-' }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if action.status == 'completed' else ('warning' if action.status == 'in_progress' else 'secondary') }}">
+                        {{ action.status or 'pending' }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-{{ 'danger' if action.priority == 'high' else ('warning' if action.priority == 'medium' else 'info') }}">
+                        {{ action.priority or 'medium' }}
+                    </span>
+                </td>
+                <td>{{ action.due_date if action.due_date else '-' }}</td>
+                <td>{{ action.description[:50] + '...' if action.description and action.description|length > 50 else (action.description or '-') }}</td>
+                <td class="actions-cell">
+                    <a href="/actions/{{ action.id }}/edit" title="Editar">
+                        <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
+                    </a>
+                    <form method="POST" action="/actions/{{ action.id }}/delete">
+                        <button type="submit" title="Deletar" onclick="return confirm('Tem certeza que deseja deletar esta ação?')">
+                            <img src="{{ url_for('static', filename='svg/delete.svg') }}" alt="Deletar" class="icon-btn">
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a href="/welcome" class="btn btn-secondary">Voltar para Início</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

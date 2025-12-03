@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Entidades - Contbem CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Entidades</h2>
+    <div>
+        <a href="/persons" class="btn btn-outline-primary">Pessoas</a>
+        <a href="/events" class="btn btn-outline-primary">Eventos</a>
+        <a href="/actions" class="btn btn-outline-primary">Ações</a>
+        <a href="/entities/new" class="btn btn-success">Nova Entidade</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>URL</th>
+                <th>Endereço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entity in entities %}
+            <tr>
+                <td>{{ entity.name }}</td>
+                <td>{{ entity.email or '-' }}</td>
+                <td>{{ entity.phone or '-' }}</td>
+                <td>
+                    {% if entity.url %}
+                        <a href="{{ entity.url }}" target="_blank">{{ entity.url[:30] }}...</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ entity.address or '-' }}</td>
+                <td class="actions-cell">
+                    <a href="/entities/{{ entity.id }}/details" title="Detalhes">
+                        <img src="{{ url_for('static', filename='svg/details.svg') }}" alt="Detalhes" class="icon-btn">
+                    </a>
+                    <a href="/entities/{{ entity.id }}/edit" title="Editar">
+                        <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
+                    </a>
+                    <form method="POST" action="/entities/{{ entity.id }}/delete">
+                        <button type="submit" title="Deletar" onclick="return confirm('Tem certeza que deseja deletar esta entidade?')">
+                            <img src="{{ url_for('static', filename='svg/delete.svg') }}" alt="Deletar" class="icon-btn">
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a href="/welcome" class="btn btn-secondary">Voltar para Início</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
