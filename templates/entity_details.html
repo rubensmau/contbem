@@ -3,6 +3,16 @@
 {% block title %}{{ entity.name }} - Detalhes{% endblock %}
 
 {% block content %}
+<style>
+    .description-preview {
+        cursor: help;
+        text-decoration: underline dotted;
+        color: #0066cc;
+    }
+    .description-preview:hover {
+        color: #004499;
+    }
+</style>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Detalhes da Entidade</h2>
     <div>
@@ -83,7 +93,15 @@
                         <td>{{ event.title }}</td>
                         <td>{{ event.event_type or '-' }}</td>
                         <td>{{ event.persons.name if event.persons else '-' }}</td>
-                        <td>{{ event.description[:40] + '...' if event.description and event.description|length > 40 else (event.description or '-') }}</td>
+                        <td>
+                            {% if event.description and event.description|length > 40 %}
+                                <span class="description-preview" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="{{ event.description|replace('\"', '&quot;') }}">
+                                    {{ event.description[:40] }}...
+                                </span>
+                            {% else %}
+                                {{ event.description or '-' }}
+                            {% endif %}
+                        </td>
                         <td class="actions-cell">
                             <a href="/events/{{ event.id }}/edit" title="Editar">
                                 <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
@@ -135,7 +153,15 @@
                             </span>
                         </td>
                         <td>{{ action.due_date if action.due_date else '-' }}</td>
-                        <td>{{ action.description[:40] + '...' if action.description and action.description|length > 40 else (action.description or '-') }}</td>
+                        <td>
+                            {% if action.description and action.description|length > 40 %}
+                                <span class="description-preview" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="{{ action.description|replace('\"', '&quot;') }}">
+                                    {{ action.description[:40] }}...
+                                </span>
+                            {% else %}
+                                {{ action.description or '-' }}
+                            {% endif %}
+                        </td>
                         <td class="actions-cell">
                             <a href="/actions/{{ action.id }}/edit" title="Editar">
                                 <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="Editar" class="icon-btn">
@@ -157,4 +183,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+</script>
 {% endblock %}
